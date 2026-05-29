@@ -8,6 +8,10 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var timerHandler: Timer?//タイマー変数の作成
+    @State var count = 0//経過時間
+    @AppStorage("timer_value") var timerValue: Int = 10
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -16,11 +20,11 @@ struct ContentView: View {
                     .ignoresSafeArea()
                     .scaledToFill()
                 VStack(spacing: 30.0) {
-                    Text("残り30秒")
+                    Text("残り\(timerValue - count) 秒")
                         .font(.largeTitle)
                     HStack {
                         Button {
-                            
+                            startTimer()
                         } label: {
                             Text("スタート")
                                 .font(.title)
@@ -30,7 +34,11 @@ struct ContentView: View {
                                 .clipShape(Circle())
                         }//スタートボタン
                         Button {
-
+                            if let timerHandler {
+                                if timerHandler.isValid {
+                                    timerHandler.invalidate()//実行中だったら停止
+                                }
+                            }
                         } label: {
                             Text("ストップ")
                                 .font(.title)
@@ -42,6 +50,9 @@ struct ContentView: View {
                     }//HStack
                 }//VStack
             }//ZStack
+            .onAppear(){
+                count = 0//表示されたら０にする
+            }
             .toolbar{
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink{
@@ -53,6 +64,30 @@ struct ContentView: View {
             }//toolbar
         }//NavigationStack
     }
+    func countDownTimer() {
+        count += 1
+        if timerValue - count <= 0 {
+            timerHandler?.invalidate()//タイマー停止
+        }
+    }//countDownTimer
+    func startTimer() {
+        if let timerHandler {
+            if timerHandler.isValid == true {
+                return//タイマーがあって動いていたら何もしない
+            }
+        }//timerHandlerのアンラップ
+        //
+        if timerValue - count <= 0 {
+            count = 0//タイマーを０にする
+        }
+        //インスタンスを作成してタイマーをスタートする
+        timerHandler = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            Task {//メインスレッドで実行する
+                @MainActor in countDownTimer()
+            }
+        }//timerHandler
+    }//startTimer
+
 }
 
 #Preview {
