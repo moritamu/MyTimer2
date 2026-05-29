@@ -11,7 +11,8 @@ struct ContentView: View {
     @State var timerHandler: Timer?//タイマー変数の作成
     @State var count = 0//経過時間
     @AppStorage("timer_value") var timerValue: Int = 10
-    
+    @State var isShowAlert: Bool = false
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -62,12 +63,20 @@ struct ContentView: View {
                     }//NavigationLink
                 }//TootbarItem
             }//toolbar
+            .alert("終了", isPresented: $isShowAlert) {
+                Button("OK") {
+                    print("OKがタップされました")
+                }
+            } message: {
+                    Text("タイマー終了時間です")
+                }//aleart
         }//NavigationStack
     }
     func countDownTimer() {
         count += 1
         if timerValue - count <= 0 {
             timerHandler?.invalidate()//タイマー停止
+            isShowAlert = true//アラートをtrueにする
         }
     }//countDownTimer
     func startTimer() {
