@@ -66,6 +66,7 @@ struct ContentView: View {
             .alert("終了", isPresented: $isShowAlert) {
                 Button("OK") {
                     print("OKがタップされました")
+                    count = 0
                 }
             } message: {
                     Text("タイマー終了時間です")
@@ -86,9 +87,9 @@ struct ContentView: View {
             }
         }//timerHandlerのアンラップ
         //
-        if timerValue - count <= 0 {
-            count = 0//タイマーを０にする
-        }
+//        if timerValue - count <= 0 {
+//            count = 0//タイマーを０にする
+//        }
         //インスタンスを作成してタイマーをスタートする
         timerHandler = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             Task {//メインスレッドで実行する
